@@ -12,6 +12,7 @@ type Claims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
 	Password string `json:"password"`
+	UserID   int64  `json:"user_id"`
 }
 
 type authorizer struct {
@@ -23,7 +24,7 @@ func NewAuthorizer(key string, expireDuration time.Duration) *authorizer {
 	return &authorizer{key: key, expireDuration: expireDuration}
 }
 
-func (a *authorizer) GetToken(login, password, salt string) (string, error) {
+func (a *authorizer) GetToken(login, password, salt string, userID int64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwt.At(time.Now().Add(a.expireDuration)),
@@ -31,6 +32,7 @@ func (a *authorizer) GetToken(login, password, salt string) (string, error) {
 		},
 		Username: login,
 		Password: HashPassword(password, salt),
+		UserID:   userID,
 	})
 
 	return token.SignedString([]byte(a.key))
