@@ -19,6 +19,7 @@ const (
 type userInfo struct {
 	Username string
 	Password string
+	UserID   int64
 }
 
 func (a *authorizer) Interceptor(
@@ -59,12 +60,12 @@ func (a *authorizer) authorize(ctx context.Context) (context.Context, error) {
 
 	token := authHeader[0]
 
-	username, password, err := ParseToken(token, []byte(a.key))
+	username, password, userID, err := ParseToken(token, []byte(a.key))
 	if err != nil {
 		return ctx, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
-	return context.WithValue(ctx, UserKey, userInfo{Username: username, Password: password}), nil
+	return context.WithValue(ctx, UserKey, userInfo{Username: username, Password: password, UserID: userID}), nil
 }
 
 func GetUserInfo(ctx context.Context) (*userInfo, error) {
