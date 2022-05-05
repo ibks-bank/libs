@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	UserKey  = "X-Auth-User"
-	TokenKey = "X-Auth-Token"
+	UserKey     = "X-Auth-User"
+	TokenKey    = "X-Auth-Token"
+	TelegramKey = "X-Auth-Telegram"
 )
 
 type userInfo struct {
@@ -75,4 +76,18 @@ func GetUserInfo(ctx context.Context) (*userInfo, error) {
 	}
 
 	return &user, nil
+}
+
+func GetTelegramUsername(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", status.Errorf(codes.InvalidArgument, "Retrieving metadata is failed")
+	}
+
+	tgHeader, ok := md[strings.ToLower(TelegramKey)]
+	if !ok {
+		return "", nil
+	}
+
+	return tgHeader[0], nil
 }
